@@ -146,7 +146,7 @@ export default function Home() {
               Upload any real estate listing PDF and get instant, accurate property data.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <button 
+          <button
                 onClick={() => window.location.href='/upload.html'} 
                 className="bg-white text-black px-8 py-4 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center"
               >
@@ -157,9 +157,9 @@ export default function Home() {
               </button>
               <button className="glass-effect px-8 py-4 rounded-lg font-semibold hover:bg-white/10 transition-colors">
                 Watch Demo
-              </button>
+          </button>
             </div>
-          </div>
+        </div>
 
           {/* Right Content - App Preview */}
           <div className="relative">
@@ -175,7 +175,7 @@ export default function Home() {
                   <div className="text-sm font-medium">Real Estate Analyzer</div>
                   <button className="bg-blue-600 text-white px-3 py-1 rounded text-xs">Analyze</button>
                 </div>
-                
+
                 {/* App Content */}
                 <div className="p-6 space-y-4">
                   <div className="flex items-center space-x-3">
@@ -370,7 +370,7 @@ export default function Home() {
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
             <p>&copy; 2024 Real Estate Analyzer. All rights reserved.</p>
           </div>
-        </div>
+      </div>
       </footer>
     </div>
   );
