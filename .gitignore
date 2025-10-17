@@ -1,0 +1,39 @@
+# OS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.env
+.venv
+venv/
+mineru-env/
+
+# Databases
+*.db
+*.sqlite3
+real_estate_analyzer.db
+
+# Logs
+logs/
+*.log
+
+# Node / Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/.turbo/
+frontend/.vercel/
+frontend/.env.local
+
+# Build outputs
+build/
+dist/
+.out/
+
+# Misc
+coverage/
+.tmp/
+.temp/

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate PDF Analyzer - Upload & Analyze</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .upload-area {
+            transition: all 0.3s ease;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area:hover {
+            border-color: rgba(102, 126, 234, 0.5);
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .result-card {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-white">
+    <!-- Header -->
+    <header class="px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-sm">RE</span>
+                </div>
+                <span class="text-xl font-bold">Real Estate Analyzer</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="/" class="text-gray-300 hover:text-white transition-colors">
+                    ← Back to Home
+                </a>
+                <button id="loginBtn" class="text-gray-300 hover:text-white transition-colors">
+                    Sign In
+                </button>
+                <button id="dashboardBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors hidden">
+                    Dashboard
+                </button>
+                <button id="logoutBtn" class="text-gray-300 hover:text-white transition-colors hidden">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="min-h-screen py-8">
+        <div class="max-w-4xl mx-auto px-4">
+            <!-- Hero Section -->
+            <div class="text-center mb-12">
+                <h1 class="text-5xl font-bold mb-4">
+                    Upload & <span class="hero-gradient bg-clip-text text-transparent">Analyze</span>
+                </h1>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    Upload any real estate listing PDF and get instant, accurate property data extracted using advanced AI.
+                </p>
+            </div>
+            
+            <!-- Upload Section -->
+            <div class="glass-effect rounded-2xl p-8 mb-8">
+                <h2 class="text-2xl font-semibold mb-6 text-center">Upload Your PDF</h2>
+                
+                <div class="upload-area rounded-xl p-12 text-center mb-6" id="uploadArea">
+                    <div class="mb-4">
+                        <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                    </div>
+                    <p class="text-lg text-gray-300 mb-4">Drag and drop your PDF here, or click to browse</p>
+                    <p class="text-sm text-gray-400">Supports PDF files up to 10MB</p>
+                    <input
+                        type="file"
+                        id="fileInput"
+                        accept=".pdf"
+                        class="hidden"
+                    />
+                </div>
+
+                <div id="fileInfo" class="mb-6 hidden p-4 glass-effect rounded-lg border border-green-500/20">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
+                            <svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-green-300 font-medium" id="fileName"></p>
+                            <p class="text-green-400/70 text-sm">Ready to analyze</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button
+                    id="analyzeBtn"
+                    class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center space-x-2"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span id="analyzeText">Analyze PDF</span>
+                </button>
+
+                <div id="error" class="mt-6 hidden p-4 glass-effect rounded-lg border border-red-500/20">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-red-500/20 rounded-full flex items-center justify-center">
+                            <svg class="w-4 h-4 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <p class="text-red-300" id="errorText"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="glass-effect rounded-2xl p-8 hidden result-card">
+                <h2 class="text-3xl font-bold mb-6 text-center">Analysis Results</h2>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const error = document.getElementById('error');
+        const results = document.getElementById('results');
+        const resultsContent = document.getElementById('resultsContent');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileName = document.getElementById('fileName');
+        const errorText = document.getElementById('errorText');
+        const analyzeText = document.getElementById('analyzeText');
+        const loginBtn = document.getElementById('loginBtn');
+        const dashboardBtn = document.getElementById('dashboardBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        let selectedFile = null;
+
+        // Check if user is logged in
+        function checkAuthStatus() {
+            const user = localStorage.getItem('user');
+            if (user) {
+                loginBtn.classList.add('hidden');
+                dashboardBtn.classList.remove('hidden');
+                logoutBtn.classList.remove('hidden');
+            } else {
+                loginBtn.classList.remove('hidden');
+                dashboardBtn.classList.add('hidden');
+                logoutBtn.classList.add('hidden');
+            }
+        }
+
+        // Initialize auth status
+        checkAuthStatus();
+
+        // Event listeners for auth buttons
+        loginBtn.addEventListener('click', () => {
+            window.location.href = '/login';
+        });
+
+        dashboardBtn.addEventListener('click', () => {
+            window.location.href = '/dashboard';
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('session_token');
+            localStorage.removeItem('user');
+            checkAuthStatus();
+        });
+
+        // File input change handler
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files?.[0];
+            handleFile(file);
+        });
+
+        // Drag and drop handlers
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            handleFile(file);
+        });
+
+        function handleFile(file) {
+            if (file && file.type === 'application/pdf') {
+                selectedFile = file;
+                fileName.textContent = file.name;
+                fileInfo.classList.remove('hidden');
+                error.classList.add('hidden');
+                uploadArea.style.display = 'none';
+            } else {
+                showError('Please select a PDF file');
+            }
+        }
+
+        analyzeBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            analyzeBtn.disabled = true;
+            analyzeText.textContent = 'Analyzing...';
+            analyzeBtn.innerHTML = `
+                <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Analyzing...</span>
+            `;
+            error.classList.add('hidden');
+
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+
+                // Get session token for authentication
+                const sessionToken = localStorage.getItem('session_token');
+                const headers = {};
+                if (sessionToken) {
+                    headers['Authorization'] = `Bearer ${sessionToken}`;
+                }
+
+                const response = await fetch('http://localhost:8000/analyze-pdf', {
+                    method: 'POST',
+                    headers: headers,
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Analysis failed');
+                }
+
+                const data = await response.json();
+                window.lastResults = data; // Store for download
+                showResults(data);
+            } catch (err) {
+                showError(err.message || 'An error occurred');
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Analyze PDF</span>
+                `;
+            }
+        });
+
+        function showError(message) {
+            errorText.textContent = message;
+            error.classList.remove('hidden');
+        }
+
+        function showResults(data) {
+            if (data.success) {
+                let html = '';
+                
+                // Success header
+                html += '<div class="text-center mb-8">';
+                html += '<div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">';
+                html += '<svg class="w-8 h-8 text-green-400" fill="currentColor" viewBox="0 0 20 20">';
+                html += '<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>';
+                html += '</svg></div>';
+                html += '<h3 class="text-2xl font-bold text-green-400 mb-2">Analysis Complete!</h3>';
+                html += '<p class="text-gray-300">Successfully extracted data from your PDF</p>';
+                html += '</div>';
+                
+                // Extracted Data Section - Format as requested
+                if (Object.keys(data.extracted_data).length > 0) {
+                    html += '<div class="mb-8">';
+                    html += '<h3 class="text-xl font-semibold mb-6 text-center">Extracted Data</h3>';
+                    
+                    // Check if this is a commercial property
+                    const isCommercial = data.extracted_data['Property Type'] || 
+                                       data.extracted_data['Sq Ft'] && !data.extracted_data['Bedrooms'];
+                    
+                    let displayOrder, propertyDetails;
+                    
+                    if (isCommercial) {
+                        // For commercial properties
+                        displayOrder = ['Price', 'Sq Ft', 'Property Type'];
+                        propertyDetails = ['Address', 'MLS#', 'Built'];
+                    } else {
+                        // For residential properties
+                        displayOrder = ['Price', 'Sq Ft', 'Bedrooms', 'Bathrooms'];
+                        propertyDetails = ['Address', 'MLS#', 'Built'];
+                    }
+                    
+                    // Main property data
+                    html += '<div class="glass-effect p-6 rounded-xl border border-white/10 mb-6">';
+                    for (const key of displayOrder) {
+                        if (data.extracted_data[key]) {
+                            html += `<div class="mb-3">`;
+                            html += `<div class="text-sm text-gray-400 mb-1">${key}:</div>`;
+                            html += `<div class="text-lg font-semibold text-white">${data.extracted_data[key]}</div>`;
+                            html += `</div>`;
+                        }
+                    }
+                    html += '</div>';
+                    
+                    // Property Details section
+                    const hasPropertyDetails = propertyDetails.some(key => data.extracted_data[key]);
+                    if (hasPropertyDetails) {
+                        html += '<div class="glass-effect p-6 rounded-xl border border-white/10">';
+                        html += '<h4 class="text-lg font-semibold mb-4 text-center">Property Details</h4>';
+                        html += '<div class="space-y-2">';
+                        for (const key of propertyDetails) {
+                            if (data.extracted_data[key]) {
+                                html += `<div class="text-white">${data.extracted_data[key]}</div>`;
+                            }
+                        }
+                        html += '</div>';
+                        html += '</div>';
+                    }
+                    
+                    html += '</div>';
+                }
+                
+                // Markdown Content Section
+                if (data.markdown_content) {
+                    html += '<div class="mb-6">';
+                    html += '<h3 class="text-xl font-semibold mb-4 text-center">Extracted Text Content</h3>';
+                    html += '<div class="glass-effect p-6 rounded-xl border border-white/10 max-h-96 overflow-y-auto">';
+                    html += `<pre class="whitespace-pre-wrap text-sm text-gray-300 leading-relaxed">${data.markdown_content}</pre>`;
+                    html += '</div></div>';
+                }
+                
+                // Action buttons
+                html += '<div class="flex flex-col sm:flex-row gap-4 justify-center">';
+                html += '<button onclick="window.location.reload()" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300">';
+                html += 'Analyze Another PDF';
+                html += '</button>';
+                html += '<button onclick="downloadResults()" class="glass-effect text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/10 transition-all duration-300">';
+                html += 'Download Results';
+                html += '</button>';
+                html += '</div>';
+                
+                resultsContent.innerHTML = html;
+            } else {
+                resultsContent.innerHTML = `
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-red-400 mb-2">Analysis Failed</h3>
+                        <p class="text-gray-300 mb-4">Error: ${data.error}</p>
+                        <button onclick="window.location.reload()" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300">
+                            Try Again
+                        </button>
+                    </div>
+                `;
+            }
+            
+            results.classList.remove('hidden');
+            results.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function downloadResults() {
+            // Simple download functionality - you can enhance this
+            const data = {
+                extracted_data: window.lastResults?.extracted_data || {},
+                markdown_content: window.lastResults?.markdown_content || '',
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'real-estate-analysis.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
