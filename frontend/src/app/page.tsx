@@ -147,7 +147,7 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button 
-                onClick={() => window.location.href='/test.html'} 
+                onClick={() => window.location.href='/upload.html'} 
                 className="bg-white text-black px-8 py-4 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -317,7 +317,7 @@ export default function Home() {
           <h2 className="text-4xl font-bold mb-6">Ready to Transform Your Workflow?</h2>
           <p className="text-xl text-gray-300 mb-8">Join thousands of real estate professionals who save hours every day with our AI-powered PDF analyzer.</p>
           <button 
-            onClick={() => window.location.href='/test.html'} 
+            onClick={() => window.location.href='/upload.html'} 
             className="bg-white text-black px-8 py-4 rounded-lg font-semibold hover:bg-gray-200 transition-colors text-lg"
           >
             Start Analyzing Now

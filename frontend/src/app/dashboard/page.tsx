@@ -233,7 +233,7 @@ export default function DashboardPage() {
               <p className="text-white font-semibold">{user?.username}</p>
             </div>
             <button
-              onClick={() => router.push('/test.html')}
+                onClick={() => router.push('/upload.html')}
               className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               <svg className="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -346,7 +346,7 @@ export default function DashboardPage() {
             <h3 className="text-3xl font-bold mb-4">No analyses yet</h3>
             <p className="text-xl text-gray-300 mb-8 max-w-md mx-auto">Upload your first PDF to start analyzing real estate properties and extracting valuable data automatically.</p>
             <button
-              onClick={() => router.push('/test.html')}
+                onClick={() => router.push('/upload.html')}
               className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl text-lg"
             >
               <svg className="w-6 h-6 inline mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

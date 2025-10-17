@@ -49,5 +49,5 @@ const PORT = 9000;
 server.listen(PORT, () => {
   console.log(`🚀 Real Estate PDF Analyzer running at http://localhost:${PORT}/`);
   console.log('📊 Home page: http://localhost:9000/');
-  console.log('🔧 PDF Analyzer: http://localhost:9000/test.html');
+  console.log('🔧 PDF Analyzer: http://localhost:9000/upload.html');
 });
