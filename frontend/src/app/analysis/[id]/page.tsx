@@ -206,6 +206,11 @@ export default function AnalysisDetailPage() {
             propertyDetails = ['Address', 'MLS#', 'Built'];
           }
           
+          // Compute additional fields not covered above
+          const primaryKeys = new Set([...(displayOrder || []), ...(propertyDetails || [])]);
+          const additionalEntries = Object.entries(analysis.extracted_data)
+            .filter(([key]) => !primaryKeys.has(key));
+
           return (
             <div className="glass-effect rounded-2xl p-8 mb-8">
               <h2 className="text-2xl font-semibold mb-6 text-center">Extracted Data</h2>
@@ -238,6 +243,21 @@ export default function AnalysisDetailPage() {
                       }
                       return null;
                     })}
+                  </div>
+                </div>
+              )}
+
+              {/* Additional Fields section */}
+              {additionalEntries.length > 0 && (
+                <div className="glass-effect p-6 rounded-xl border border-white/10 mt-6">
+                  <h4 className="text-lg font-semibold mb-4 text-center">Additional Fields</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {additionalEntries.map(([key, value]) => (
+                      <div key={key} className="glass-effect rounded-lg p-4 border border-white/10">
+                        <div className="text-sm text-gray-400 mb-1">{key}</div>
+                        <div className="text-base font-semibold text-white break-words">{String(value)}</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}

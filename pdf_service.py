@@ -399,6 +399,169 @@ def extract_real_estate_data(markdown_content: str) -> Dict[str, Any]:
             data['Address'] = address
             break
     
+    # Extract lot size / land area
+    lot_patterns = [
+        r'Lot\s*Size[:\s]*(\d{1,3}(?:,\d{3})*(?:\.\d+)?)\s*(?:sq\.?\s*ft\.?|square\s*feet|SF)',
+        r'Lot\s*Size[:\s]*(\d+(?:\.\d+)?)\s*(?:acres?|ac\.?)(?!\w)',
+        r'Land\s*Area[:\s]*(\d{1,3}(?:,\d{3})*(?:\.\d+)?)\s*(?:sq\.?\s*ft\.?|SF)',
+        r'Lot[:\s]*(\d+(?:\.\d+)?)\s*ac(?:re)?s?'
+    ]
+    for pattern in lot_patterns:
+        m = re.search(pattern, markdown_content, re.IGNORECASE)
+        if m:
+            value = m.group(1)
+            # Normalize acres to append unit if detected
+            if 'ac' in m.group(0).lower():
+                data['Lot Size'] = f"{value} acres"
+            else:
+                data['Lot Size'] = f"{value} sqft"
+            break
+
+    # Property taxes / HOA
+    taxes_patterns = [
+        r'Taxes?[:\s]*\$?([\d,]+(?:\.\d{2})?)',
+        r'Property\s*Tax(?:es)?[:\s]*\$?([\d,]+(?:\.\d{2})?)'
+    ]
+    for pattern in taxes_patterns:
+        m = re.search(pattern, markdown_content, re.IGNORECASE)
+        if m:
+            data['Taxes'] = f"${m.group(1)}"
+            break
+
+    hoa_patterns = [
+        r'HOA\s*(?:Fees?|Dues?)[:\s]*\$?([\d,]+(?:\.\d{2})?)\s*(?:/\s*(month|mo|year|yr|quarter|qtr))?',
+        r'Association\s*Fee[:\s]*\$?([\d,]+(?:\.\d{2})?)\s*(?:/\s*(month|mo|year|yr|quarter|qtr))?'
+    ]
+    for pattern in hoa_patterns:
+        m = re.search(pattern, markdown_content, re.IGNORECASE)
+        if m:
+            amount = f"${m.group(1)}"
+            freq = m.group(2)
+            data['HOA'] = amount if not freq else f"{amount} / {freq}"
+            break
+
+    # Zoning (commercial)
+    zoning_patterns = [
+        r'Zoning[:\s]*([A-Za-z0-9\-]+)',
+        r'Zone[:\s]*([A-Za-z0-9\-]+)'
+    ]
+    for pattern in zoning_patterns:
+        m = re.search(pattern, markdown_content, re.IGNORECASE)
+        if m:
+            data['Zoning'] = m.group(1)
+            break
+
+    # Income / investment metrics
+    cap_rate_patterns = [
+        r'Cap\s*Rate[:\s]*([\d\.]+)\s*%',
+        r'Capitalization\s*Rate[:\s]*([\d\.]+)\s*%'
+    ]
+    for pattern in cap_rate_patterns:
+        m = re.search(pattern, markdown_content, re.IGNORECASE)
+        if m:
+            data['Cap Rate'] = f"{m.group(1)}%"
+            break
+
+    noi_patterns = [
+        r'NOI[:\s]*\$?([\d,]+(?:\.\d{2})?)',
+        r'Net\s*Operating\s*Income[:\s]*\$?([\d,]+(?:\.\d{2})?)'
+    ]
+    for pattern in noi_patterns:
+        m = re.search(pattern, markdown_content, re.IGNORECASE)
+        if m:
+            data['NOI'] = f"${m.group(1)}"
+            break
+
+    # Building specifics
+    units_patterns = [
+        r'Units?[:\s]*([\d,]+)',
+        r'([\d,]+)\s*units?\b'
+    ]
+    for pattern in units_patterns:
+        m = re.search(pattern, markdown_content, re.IGNORECASE)
+        if m:
+            data['Units'] = m.group(1).replace(',', '')
+            break
+
+    floors_patterns = [
+        r'Floors?[:\s]*([\d]+)',
+        r'Stories?[:\s]*([\d]+)'
+    ]
+    for pattern in floors_patterns:
+        m = re.search(pattern, markdown_content, re.IGNORECASE)
+        if m:
+            data['Floors'] = m.group(1)
+            break
+
+    parking_patterns = [
+        r'Parking[:\s]*([A-Za-z0-9\s\-\+]+)',
+        r'([\d]+)\s*parking\s*(?:spaces|spots)'
+    ]
+    for pattern in parking_patterns:
+        m = re.search(pattern, markdown_content, re.IGNORECASE)
+        if m:
+            data['Parking'] = m.group(1).strip()
+            break
+
+    ceiling_patterns = [
+        r'Ceiling\s*Height[:\s]*([\d\.]+)\s*(?:ft|feet)'
+    ]
+    for pattern in ceiling_patterns:
+        m = re.search(pattern, markdown_content, re.IGNORECASE)
+        if m:
+            data['Ceiling Height'] = f"{m.group(1)} ft"
+            break
+
+    loading_patterns = [
+        r'Loading\s*Docks?[:\s]*([\d]+)'
+    ]
+    for pattern in loading_patterns:
+        m = re.search(pattern, markdown_content, re.IGNORECASE)
+        if m:
+            data['Loading Docks'] = m.group(1)
+            break
+
+    # Renovation / features (residential)
+    reno_patterns = [
+        r'Renovated[:\s]*(\d{4})',
+        r'Updated[:\s]*(\d{4})'
+    ]
+    for pattern in reno_patterns:
+        m = re.search(pattern, markdown_content, re.IGNORECASE)
+        if m:
+            data['Renovated'] = m.group(1)
+            break
+
+    feature_flags = {
+        'Garage': [r'\bgarage\b'],
+        'Pool': [r'\bpool\b'],
+        'Basement': [r'\bbasement\b']
+    }
+    for key, patterns in feature_flags.items():
+        for pattern in patterns:
+            if re.search(pattern, markdown_content, re.IGNORECASE):
+                data[key] = 'Yes'
+                break
+
+    # Contact details
+    email_match = re.search(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}', markdown_content)
+    if email_match:
+        data['Contact Email'] = email_match.group(0)
+
+    phone_match = re.search(r'(?:\+?1[\s\-\.]*)?\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]?\d{4}', markdown_content)
+    if phone_match:
+        data['Contact Phone'] = phone_match.group(0)
+
+    agent_patterns = [
+        r'Agent[:\s]*([A-Za-z\s\.-]+)',
+        r'Broker[:\s]*([A-Za-z\s\.-]+)'
+    ]
+    for pattern in agent_patterns:
+        m = re.search(pattern, markdown_content, re.IGNORECASE)
+        if m:
+            data['Agent'] = m.group(1).strip()
+            break
+
     # Extract year built
     year_patterns = [
         r'Built[:\s]*(\d{4})',
